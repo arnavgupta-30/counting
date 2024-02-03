@@ -28,7 +28,7 @@ module.exports = (client) => {
       }
     }
   }
-  const rest = new REST().setToken(client.config.token);
+  const rest = new REST().setToken(process.env.token);
   (async () => {
     try {
       await rest.put(

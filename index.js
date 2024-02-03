@@ -1,5 +1,5 @@
 const { Client, Events, GatewayIntentBits } = require("discord.js");
-const config_json = require("./config.json");
+require('dotenv').config();
 
 const client = new Client({ intents: [
   GatewayIntentBits.Guilds,
@@ -9,6 +9,7 @@ const client = new Client({ intents: [
   GatewayIntentBits.GuildMessageTyping,
 ] });
 
+const config_json = require("./config.json");
 client.config = config_json;
 
 // Error handling
