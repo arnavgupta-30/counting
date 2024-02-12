@@ -3,6 +3,7 @@ const { Events } = require("discord.js");
 module.exports = {
   name: Events.MessageDelete,
   async execute(message) {
+    if (message.author.id === message.client.user.id) return;
     if (message.channel.id === message.client.config.countChannel) {
       var currentCount = await message.client.db.get("count");
       var lastmsg = (await message.channel.messages.fetch({ limit: 1 })).first();

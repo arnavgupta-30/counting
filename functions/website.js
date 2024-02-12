@@ -1,8 +1,9 @@
 const express = require("express");
 const app = express();
-const port = process.env.PORT || 3000;
 
 module.exports = (client) => {
+  const port = process.env.PORT || client.config.port || 3000;
+
   client.on("ready", () => {
     app.get("/", (req, res) => {
       res.send(

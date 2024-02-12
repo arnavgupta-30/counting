@@ -1,4 +1,4 @@
-const { Client, Events, GatewayIntentBits } = require("discord.js");
+const { Client, Events, GatewayIntentBits, Partials } = require("discord.js");
 require('dotenv').config();
 
 const client = new Client({ intents: [
@@ -7,6 +7,11 @@ const client = new Client({ intents: [
   GatewayIntentBits.MessageContent,
   GatewayIntentBits.GuildMessageReactions,
   GatewayIntentBits.GuildMessageTyping,
+  GatewayIntentBits.DirectMessages
+],
+partials: [
+  Partials.Channel,
+  Partials.Message
 ] });
 
 const config_json = require("./config.json");

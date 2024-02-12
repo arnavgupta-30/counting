@@ -74,14 +74,15 @@ module.exports = {
 					content: "Please enter a valid number",
 					ephemeral: true
 				});
-				interaction.client.db.set("count", number);
-				interaction.client.db.set("leader", modalData.user.id);
-				interaction.client.user.setActivity("number " + number, {
-					type: ActivityType.Watching,
-				});
 				await modalData.editReply({
 					content: `Jumped to ${number}`,
 					ephemeral: true
+				});
+				interaction.client.db.set("count", number);
+				interaction.client.db.set("leader", modalData.user.id);
+        if (await db.get("customStatus")) return;
+				interaction.client.user.setActivity("number " + (number + 1), {
+					type: ActivityType.Listening,
 				});
     });
 
