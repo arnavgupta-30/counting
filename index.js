@@ -1,5 +1,4 @@
 const { Client, GatewayIntentBits, Partials } = require("discord.js");
-const { process } = require("node");
 require("dotenv").config();
 
 const client = new Client({

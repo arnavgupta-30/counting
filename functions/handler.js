@@ -1,6 +1,5 @@
 const { Collection, REST, Routes } = require("discord.js");
 const fs = require("fs");
-const { process } = require("node");
 const path = require("path");
 
 module.exports = (client) => {

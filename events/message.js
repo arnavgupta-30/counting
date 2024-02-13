@@ -1,7 +1,6 @@
 const { Events, PermissionFlagsBits } = require("discord.js");
 
 var safeEval = require("safe-eval");
-const { process } = require("node");
 var currentCount;
 
 // var gemini;

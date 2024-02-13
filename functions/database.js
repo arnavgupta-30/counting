@@ -1,6 +1,5 @@
 const { Database } = require("quickmongo");
 const { ActivityType } = require("discord.js");
-const { process } = require("node");
 
 module.exports = async (client) => {
   const db = new Database(process.env.dburl);
