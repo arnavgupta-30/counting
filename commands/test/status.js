@@ -77,13 +77,10 @@ module.exports = {
     if (subcommand === "status") {
       const status = interaction.options.getString("status");
       interaction.client.user.setStatus(status);
-      await interaction.client.db.set(
-        "customStatus",
-        {
-          status: status,
-          activities: interaction.client.user.presence.activities,
-        }
-      );
+      await interaction.client.db.set("customStatus", {
+        status: status,
+        activities: interaction.client.user.presence.activities,
+      });
       await interaction.reply({
         content: `The status of the bot has been set to ${status}`,
         ephemeral: true,
@@ -92,13 +89,10 @@ module.exports = {
       const activity = interaction.options.getString("activity");
       const name = interaction.options.getString("name");
       interaction.client.user.setActivity(name, { type: parseInt(activity) });
-      await interaction.client.db.set(
-        "customStatus",
-        {
-          status: interaction.client.user.presence.status,
-          activities: [interaction.client.user.presence.activities[0]],
-        }
-      );
+      await interaction.client.db.set("customStatus", {
+        status: interaction.client.user.presence.status,
+        activities: [interaction.client.user.presence.activities[0]],
+      });
       await interaction.reply({
         content: `The activity of the bot has been set to ${
           activityTypes.find((type) => type.value === activity).name

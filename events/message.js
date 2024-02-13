@@ -1,6 +1,7 @@
 const { Events, PermissionFlagsBits } = require("discord.js");
 
 var safeEval = require("safe-eval");
+const { process } = require("node");
 var currentCount;
 
 // var gemini;
@@ -20,12 +21,14 @@ module.exports = {
     if (message.channel.id == client.config.aiChannel) {
       try {
         message.react("🤔");
-        // var response = await gemini.ask(message.content) 
+        // var response = await gemini.ask(message.content)
 
         const { ChatGPTUnofficialProxyAPI } = await import("chatgpt");
-        const api = new ChatGPTUnofficialProxyAPI({ accessToken: process.env.OPENAI_ACCESS_TOKEN });
+        const api = new ChatGPTUnofficialProxyAPI({
+          accessToken: process.env.OPENAI_ACCESS_TOKEN,
+        });
         const res = await api.sendMessage("Hello World!");
-        const response = res.text;
+        var response = res.text;
 
         if (response.length > 2000) {
           var responses = [];
@@ -38,7 +41,7 @@ module.exports = {
             message.reply(responses[i]);
           }
         } else {
-        message.reply(response);
+          message.reply(response);
         }
         message.reactions.removeAll();
       } catch {
@@ -94,7 +97,7 @@ module.exports = {
       var newCount = parseInt(message.content);
 
       if (isNaN(newCount)) {
-        console.log(`[❌] Message is not a number`);
+        console.log("[❌] Message is not a number");
         return message.delete();
       }
 
@@ -104,7 +107,7 @@ module.exports = {
           (await db.set("leader", message.author.id));
 
         if (currentCountingLeader == message.author.id) {
-          console.log(`[❌] User is already the leader`);
+          console.log("[❌] User is already the leader");
           return message.delete();
         }
 
@@ -120,7 +123,7 @@ module.exports = {
         await db.set("count", newCount);
         console.log(`[📈] Count is now ${newCount}`);
       } else {
-        console.log(`[❌] Wrong Number inputed`);
+        console.log("[❌] Wrong Number inputed");
         message.delete();
       }
     }

@@ -1,5 +1,6 @@
 const { Database } = require("quickmongo");
 const { ActivityType } = require("discord.js");
+const { process } = require("node");
 
 module.exports = async (client) => {
   const db = new Database(process.env.dburl);
@@ -11,7 +12,9 @@ module.exports = async (client) => {
       var customPresence = await db.get("customStatus");
       if (customPresence) {
         console.log("[📂] Custom presence is enabled");
-        console.log(`[📂] Presence: ${JSON.stringify(await db.get("customStatus"))}`);
+        console.log(
+          `[📂] Presence: ${JSON.stringify(await db.get("customStatus"))}`
+        );
         client.user.presence.set(customPresence);
       } else {
         client.user.setStatus("idle");

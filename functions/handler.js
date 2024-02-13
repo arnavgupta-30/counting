@@ -1,5 +1,6 @@
 const { Collection, REST, Routes } = require("discord.js");
 const fs = require("fs");
+const { process } = require("node");
 const path = require("path");
 
 module.exports = (client) => {
@@ -32,15 +33,17 @@ module.exports = (client) => {
   (async () => {
     try {
       await rest.put(
-        Routes.applicationGuildCommands(client.config.userID, client.config.guildID),
-        { body: commands },
+        Routes.applicationGuildCommands(
+          client.config.userID,
+          client.config.guildID
+        ),
+        { body: commands }
       );
       console.log(`[💽] Loaded ${commands.length} cmds`);
     } catch (error) {
       console.error(error);
     }
   })();
-
 
   // Events
 

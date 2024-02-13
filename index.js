@@ -1,18 +1,18 @@
-const { Client, Events, GatewayIntentBits, Partials } = require("discord.js");
-require('dotenv').config();
+const { Client, GatewayIntentBits, Partials } = require("discord.js");
+const { process } = require("node");
+require("dotenv").config();
 
-const client = new Client({ intents: [
-  GatewayIntentBits.Guilds,
-  GatewayIntentBits.GuildMessages,
-  GatewayIntentBits.MessageContent,
-  GatewayIntentBits.GuildMessageReactions,
-  GatewayIntentBits.GuildMessageTyping,
-  GatewayIntentBits.DirectMessages
-],
-partials: [
-  Partials.Channel,
-  Partials.Message
-] });
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.GuildMessageTyping,
+    GatewayIntentBits.DirectMessages,
+  ],
+  partials: [Partials.Channel, Partials.Message],
+});
 
 const config_json = require("./config.json");
 client.config = config_json;

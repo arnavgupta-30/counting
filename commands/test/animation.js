@@ -1,15 +1,11 @@
-const {
-  SlashCommandBuilder
-} = require("discord.js");
-
+const { SlashCommandBuilder } = require("discord.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("animation")
     .setDescription("run the animation"),
   async execute(interaction) {
-
-    interaction.deferReply()
+    interaction.deferReply();
 
     const here = `
     .                                                                    :man_standing:(thinking: are women real?)  :bus: :dash:  
@@ -81,18 +77,19 @@ module.exports = {
     .                                                :man_walking: 
     .                                                :man_standing: 
     .                                                :man_standing:   "salla abh kya karu?"       
-    .                                                :man_standing:   "salla abh kya karu?"       `.split("\n").splice(1)
+    .                                                :man_standing:   "salla abh kya karu?"       `
+      .split("\n")
+      .splice(1);
 
     var i = 0;
 
     const interval = setInterval(() => {
       if (i === here.length) {
-        clearInterval(interval)
-        return interaction.editReply("Animation ended")
+        clearInterval(interval);
+        return interaction.editReply("Animation ended");
       }
-      interaction.editReply(here[i])
+      interaction.editReply(here[i]);
       i++;
     }, 1000);
-
-  }
-}
+  },
+};

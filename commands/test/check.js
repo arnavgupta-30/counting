@@ -1,7 +1,4 @@
-const {
-  SlashCommandBuilder,
-  EmbedBuilder
-} = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -12,9 +9,13 @@ module.exports = {
     const leader = await interaction.client.db.get("leader");
     const embed = new EmbedBuilder()
       .setTitle("Current count")
-      .setDescription(`The current count is \`${count}\`\nNext number to enter is \`${count+1}\`\nCurrent leader is <@!${leader}>`)
+      .setDescription(
+        `The current count is \`${count}\`\nNext number to enter is \`${
+          count + 1
+        }\`\nCurrent leader is <@!${leader}>`
+      )
       .setColor("#ff0000");
 
     await interaction.reply({ embeds: [embed] });
-  }
+  },
 };

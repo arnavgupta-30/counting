@@ -3,12 +3,12 @@ const {
   EmbedBuilder,
   ActionRowBuilder,
   ButtonBuilder,
-	ButtonStyle,
+  ButtonStyle,
   ModalBuilder,
   TextInputBuilder,
-	PermissionFlagsBits,
+  PermissionFlagsBits,
   TextInputStyle,
-	ActivityType
+  ActivityType,
 } = require("discord.js");
 
 module.exports = {
@@ -47,51 +47,57 @@ module.exports = {
           new ActionRowBuilder().addComponents(
             new TextInputBuilder()
               .setCustomId("jump")
-							.setLabel("Number")
+              .setLabel("Number")
               .setPlaceholder("Enter the number")
               .setStyle(TextInputStyle.Short)
               .setRequired(true)
           )
         );
 
-			if (!i.member.permissions.has(PermissionFlagsBits.Administrator)) {
-				return i.reply({
-					content: "You do not have the required permissions to use this command",
-					ephemeral: true
-				});
-			}
+      if (!i.member.permissions.has(PermissionFlagsBits.Administrator)) {
+        return i.reply({
+          content:
+            "You do not have the required permissions to use this command",
+          ephemeral: true,
+        });
+      }
 
       await i.showModal(modal);
 
-			const filter = (i) => i.customId === "modal";
-			const modalData = await i.awaitModalSubmit({ filter, time: 15000 }).catch(() => {return;});
-			
-				await modalData.deferReply({
-					ephemeral: true
-				});
-				var number = parseInt(modalData.fields.getField("jump").value);
-				if (isNaN(number)) return modalData.editReply({
-					content: "Please enter a valid number",
-					ephemeral: true
-				});
-				await modalData.editReply({
-					content: `Jumped to ${number}`,
-					ephemeral: true
-				});
-				interaction.client.db.set("count", number);
-				interaction.client.db.set("leader", modalData.user.id);
-        if (await db.get("customStatus")) return;
-				interaction.client.user.setActivity("number " + (number + 1), {
-					type: ActivityType.Listening,
-				});
+      const filter = (i) => i.customId === "modal";
+      const modalData = await i
+        .awaitModalSubmit({ filter, time: 15000 })
+        .catch(() => {
+          return;
+        });
+
+      await modalData.deferReply({
+        ephemeral: true,
+      });
+      var number = parseInt(modalData.fields.getField("jump").value);
+      if (isNaN(number))
+        return modalData.editReply({
+          content: "Please enter a valid number",
+          ephemeral: true,
+        });
+      await modalData.editReply({
+        content: `Jumped to ${number}`,
+        ephemeral: true,
+      });
+      interaction.client.db.set("count", number);
+      interaction.client.db.set("leader", modalData.user.id);
+      if (await interaction.client.db.get("customStatus")) return;
+      interaction.client.user.setActivity("number " + (number + 1), {
+        type: ActivityType.Listening,
+      });
     });
 
-		collector.on("end", async (collected, reason) => {
-			if (reason === "time") {
-				await interaction.fetchReply().then((message) => {
-					message.delete();
-				});
-			}
-		});
+    collector.on("end", async (collected, reason) => {
+      if (reason === "time") {
+        await interaction.fetchReply().then((message) => {
+          message.delete();
+        });
+      }
+    });
   },
 };
