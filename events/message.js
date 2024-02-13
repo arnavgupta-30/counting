@@ -3,10 +3,10 @@ const { Events, PermissionFlagsBits } = require("discord.js");
 var safeEval = require("safe-eval");
 var currentCount;
 
-// var gemini;
-// import("gemini-ai").then((Gemini) => {
-//   gemini = new Gemini.default(process.env.gemnikey);
-// });
+var gemini;
+import("gemini-ai").then((Gemini) => {
+  gemini = new Gemini.default(process.env.gemnikey);
+});
 
 module.exports = {
   name: Events.MessageCreate,
@@ -20,14 +20,7 @@ module.exports = {
     if (message.channel.id == client.config.aiChannel) {
       try {
         message.react("🤔");
-        // var response = await gemini.ask(message.content)
-
-        const { ChatGPTUnofficialProxyAPI } = await import("chatgpt");
-        const api = new ChatGPTUnofficialProxyAPI({
-          accessToken: process.env.OPENAI_ACCESS_TOKEN,
-        });
-        const res = await api.sendMessage("Hello World!");
-        var response = res.text;
+        var response = await gemini.ask(message.content);
 
         if (response.length > 2000) {
           var responses = [];
