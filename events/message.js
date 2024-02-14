@@ -36,7 +36,8 @@ module.exports = {
           message.reply(response);
         }
         message.reactions.removeAll();
-      } catch {
+      } catch (e) {
+        console.log(e);
         message.reactions.removeAll();
         message.react("❌");
       }
