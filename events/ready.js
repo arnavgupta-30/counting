@@ -28,6 +28,23 @@ module.exports = {
       });
     }
 
+    // Check if any user has sumana in their status if so, give them the role
+    const guild = client.guilds.cache.get(client.config.guildID);
+    const role = await guild.roles.fetch(client.config.sumanaRoleID);
+    (await guild.members.fetch()).map((member) => {
+      if (
+        member.presence?.activities.some((activity) =>
+          activity.state?.toLowerCase().includes("sarkar")
+        )
+      ) {
+        if (member.roles.cache.has(role.id)) return;
+        member.roles.add(role);
+      } else {
+        if (!member.roles.cache.has(role.id)) return;
+        member.roles.remove(role);
+      }
+    });
+
     setInterval(async () => {
       // Custom presence
       if (await db.get("customStatus")) return;
