@@ -71,6 +71,22 @@ module.exports = {
     }
 
     if (message.channel.id === client.config.evalChannel) {
+      var evalCnt;
+      try {
+        if (message.member.permissions.has(PermissionFlagsBits.Administrator)) {
+          evalCnt = (await eval(message.content)).toString();
+        } else {
+          evalCnt = safeEval(message.content).toString();
+        }
+      } catch (e) {
+        evalCnt = e.toString();
+      }
+      return message.reply(evalCnt);
+    }
+
+    if (message.channel.id === client.config.countChannel) {
+      if (!currentCount) currentCount = await db.get("count");
+
       const guild = client.guilds.cache.get(client.config.guildID);
       const role = await guild.roles.fetch(client.config.sumanaRoleID);
       if (!message.member.roles.cache.has(role.id)) {
@@ -92,22 +108,6 @@ module.exports = {
         return message.delete();
       }
 
-      var evalCnt;
-      try {
-        if (message.member.permissions.has(PermissionFlagsBits.Administrator)) {
-          evalCnt = (await eval(message.content)).toString();
-        } else {
-          evalCnt = safeEval(message.content).toString();
-        }
-      } catch (e) {
-        evalCnt = e.toString();
-      }
-      return message.reply(evalCnt);
-    }
-
-    if (!currentCount) currentCount = await db.get("count");
-
-    if (message.channel.id === client.config.countChannel) {
       var newCount = parseInt(message.content);
 
       if (isNaN(newCount)) {
