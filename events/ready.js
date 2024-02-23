@@ -100,6 +100,9 @@ module.exports = {
 
               const emb = new EmbedBuilder(message.embeds[0])
                 .setColor(color)
+                .setFooter({
+                  text: "Poll ended",
+                })
                 .addFields(
                   {
                     name: "Upvotes",

@@ -25,6 +25,9 @@ module.exports = {
 
     const emb = new EmbedBuilder(interaction.message.embeds[0])
       .setColor(color)
+      .setFooter({
+        text: "Poll ended",
+      })
       .addFields(
         {
           name: "Upvotes",
