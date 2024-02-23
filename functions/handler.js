@@ -1,4 +1,4 @@
-const { Collection, REST, Routes } = require("discord.js");
+const { Collection, REST, Routes, Events } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
 
@@ -62,4 +62,37 @@ module.exports = (client) => {
   }
 
   console.log("[💿] Loaded " + eventFiles.length + " events");
+
+  // Xtra
+
+  client.xtra = new Collection();
+  const xtraPath = path.join(process.cwd(), "xtra");
+  const xtraFiles = fs
+    .readdirSync(xtraPath)
+    .filter((file) => file.endsWith(".js"));
+
+  Array.from(xtraFiles).forEach((file) => {
+    const filePath = path.join(xtraPath, file);
+    const xtra = require(filePath);
+    client.xtra.set(xtra.filter, xtra);
+  });
+
+  console.log("[💾] Loaded " + xtraFiles.length + " xtra");
+
+  client.on(Events.InteractionCreate, async (interaction) => {
+    if (interaction.isCommand()) return;
+
+    if (interaction.isButton()) {
+      const xtra = client.xtra.find((x) => {
+        if (typeof x.filter === "function") {
+          return x.filter(interaction.customId) && x.type === "button";
+        } else {
+          return x.filter === interaction.customId && x.type === "button";
+        }
+      });
+      if (xtra) {
+        xtra.run(client, interaction);
+      }
+    }
+  });
 };

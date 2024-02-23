@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-const { Events, ActivityType } = require("discord.js");
+const { Events, ActivityType, EmbedBuilder } = require("discord.js");
 var index = 0;
 
 module.exports = {
@@ -17,11 +17,9 @@ module.exports = {
     var customPresence = await db.get("customStatus");
     if (customPresence) {
       console.log("[📂] Custom presence is enabled");
-      console.log(
-        `[📂] Presence: ${JSON.stringify(await db.get("customStatus"))}`
-      );
       client.user.presence.set(customPresence);
     } else {
+      console.log("[📂] Custom presence is disabled");
       client.user.setStatus("idle");
       client.user.setActivity("number " + ((await db.get("count")) + 1), {
         type: ActivityType.Listening,
@@ -47,50 +45,77 @@ module.exports = {
 
     setInterval(async () => {
       // Custom presence
-      if (await db.get("customStatus")) return;
-      var count = await db.get("count");
-      var status = "number " + (count + 1);
-      if (status !== client.user.presence.activities[0].name) {
-        client.user.setActivity(status, {
-          type: ActivityType.Listening,
-        });
+      if (!(await db.get("customStatus"))) {
+        var count = await db.get("count");
+        var status = "number " + (count + 1);
+        if (status !== client.user.presence.activities[0].name) {
+          client.user.setActivity(status, {
+            type: ActivityType.Listening,
+          });
+        }
       }
 
       // Timers
       var timers = await db.get("timers");
-      if (timers.length < 1) return;
+      if (!timers) {
+        await db.set("timers", []);
+        timers = [];
+      }
 
       for (var i = 0; i < timers.length; i++) {
         var timer = timers[i];
         if (timer.expires > Date.now()) return;
 
+        if (timer.channel == undefined) {
+          console.log(`[🕒] Timer ${timer.id} no channel`);
+          await db.set(
+            "timers",
+            timers.filter((t) => t.id !== timer.id)
+          );
+          break;
+        }
+
+        console.log(`[🕒] Timer expired: ${timer.id}`);
+
         switch (timer.type) {
           case "pollend":
-            var poll = await db.get(`poll_${timer.id}`);
-            var totalVotes = Object.values(poll.votes).reduce((a, b) => a + b);
-            var fields = poll.options.map((option) => {
-              return {
-                name: option,
-                value: `${poll.votes[option]} votes (${(
-                  (poll.votes[option] / totalVotes) *
-                  100
-                ).toFixed(2)}%)`,
-                inline: true,
-              };
-            });
-            var pollEmbed = poll.embed;
-            pollEmbed.fields = fields;
+            (async () => {
+              var id = timer.id;
+              var message = await (
+                await client.channels.fetch(timer.channel)
+              ).messages.fetch(id);
 
-            var channel = client.channels.cache.get(poll.channel);
-            channel.messages.fetch(poll.message).then((msg) => {
-              msg.edit({ embeds: [pollEmbed] });
-            });
+              console.log(`[🕒] Timer ${timer.id} ended`);
+              await db.set(
+                "timers",
+                timers.filter((t) => t.id !== timer.id)
+              );
 
-            db.delete(`poll_${timer.id}`);
-            db.pull("timers", timer);
-            break;
+              var nb = message.components[0].components;
+              const yes = parseInt(nb[0].label);
+              const no = parseInt(nb[1].label);
+              const total = yes + no;
+
+              const p1 = (yes / total) * 100;
+              const p2 = (no / total) * 100;
+
+              var color = null;
+              if (yes > no) color = "Green";
+              else color = "Red";
+
+              const emb = new EmbedBuilder(message.embeds[0])
+                .setColor(color)
+                .addFields({
+                  name: "Result",
+                  value: `**UPVOTES -** \`${yes}\` (${p1}%)\n**DOWNVOTES -** \`${no}\` (${p2}%)`,
+                });
+
+              message.edit({ components: [], embeds: [emb] });
+            })();
         }
       }
     }, 2000);
+
+    console.log("[🕒] Listening for timers");
   },
 };

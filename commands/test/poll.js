@@ -50,16 +50,19 @@ module.exports = {
         .setCustomId("vote:end")
     );
 
-    const msg = await interaction.reply({
-      embeds: [emb],
-      components: [btn],
-    });
+    const msg = await (
+      await interaction.reply({
+        embeds: [emb],
+        components: [btn],
+      })
+    ).fetch();
 
-    if (interaction.options.getString("expires")) {
+    if (interaction.options.getString("expiry")) {
       await db.push("timers", {
         type: "pollend",
         id: msg.id,
-        expires: Date.now() + ms(interaction.options.getString("expires")),
+        channel: msg.channel.id,
+        expires: Date.now() + ms(interaction.options.getString("expiry")),
       });
     }
     await db.set(`${msg.id}:vote:owner`, interaction.user.id);
