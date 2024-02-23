@@ -14,35 +14,96 @@ module.exports = {
     .setDescription("Create a poll")
     .addStringOption((option) =>
       option
-        .setName("question")
-        .setDescription("The question for the poll")
+        .setName("title")
+        .setDescription("The title for the poll")
         .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option
+        .setName("description")
+        .setDescription("The description for the poll")
+        .setRequired(true)
+    )
+    .addAttachmentOption((option) =>
+      option
+        .setName("image")
+        .setDescription("The image for the poll")
+        .setRequired(false)
+    )
+    .addAttachmentOption((option) =>
+      option
+        .setName("thumbnail")
+        .setDescription("The thumbnail for the poll")
+        .setRequired(false)
     )
     .addStringOption((option) =>
       option
         .setName("expiry")
         .setDescription("Relative time for the poll to expire")
         .setRequired(false)
+    )
+    .addRoleOption((option) =>
+      option
+        .setName("whitelist")
+        .setDescription("The role to whitelist for voting")
+        .setRequired(false)
+    )
+    .addRoleOption((option) =>
+      option
+        .setName("blacklist")
+        .setDescription("The role to blacklist for voting")
+        .setRequired(false)
+    )
+    .addRoleOption((option) =>
+      option
+        .setName("ping")
+        .setDescription("The role to ping when the poll ends")
+        .setRequired(false)
     ),
   async execute(interaction) {
     const client = interaction.client;
     const db = client.db;
 
-    const cont = interaction.options.getString("question");
+    const cont = interaction.options.getString("title");
+    const desc = interaction.options.getString("description");
     const emb = new EmbedBuilder()
-      .setTitle("Poll by " + interaction.user.username)
-      .setDescription(`${cont}`)
-      .setColor("Blurple");
+      .setTitle(cont)
+      .setDescription(desc)
+      .setAuthor({
+        name: interaction.user.username,
+        iconURL: interaction.user.displayAvatarURL(),
+        url: `https://discord.com/users/${interaction.user.id}`,
+      })
+      .setFooter({
+        text:
+          "Expires in " + interaction.options.getString("expiry") || "Never",
+      })
+      .setThumbnail(
+        interaction.options.getAttachment("thumbnail")
+          ? interaction.options.getAttachment("thumbnail").url
+          : null
+      )
+      .setImage(
+        interaction.options.getAttachment("image")
+          ? interaction.options.getAttachment("image").url
+          : null
+      )
+      .setColor("Blurple")
+      .setTimestamp(
+        interaction.options.getString("expiry")
+          ? Date.now() + ms(interaction.options.getString("expiry"))
+          : null
+      );
     const btn = new ActionRowBuilder().setComponents(
       new ButtonBuilder()
         .setLabel("0")
         .setStyle(ButtonStyle.Success)
-        .setEmoji("👍")
+        .setEmoji("🔼")
         .setCustomId("vote:yes"),
       new ButtonBuilder()
         .setLabel("0")
         .setStyle(ButtonStyle.Danger)
-        .setEmoji("👎")
+        .setEmoji("🔽")
         .setCustomId("vote:no"),
       new ButtonBuilder()
         .setLabel("END POLL")
@@ -66,5 +127,24 @@ module.exports = {
       });
     }
     await db.set(`${msg.id}:vote:owner`, interaction.user.id);
+
+    if (interaction.options.getRole("whitelist")) {
+      await db.set(
+        `${msg.id}:vote:whitelist`,
+        interaction.options.getRole("whitelist").id
+      );
+    }
+    if (interaction.options.getRole("blacklist")) {
+      await db.set(
+        `${msg.id}:vote:blacklist`,
+        interaction.options.getRole("blacklist").id
+      );
+    }
+    if (interaction.options.getRole("ping")) {
+      await db.set(
+        `${msg.id}:vote:ping`,
+        interaction.options.getRole("ping").id
+      );
+    }
   },
 };

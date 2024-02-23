@@ -5,6 +5,29 @@ module.exports = {
   filter: "vote:yes",
   run: async (client, interaction) => {
     const db = client.db;
+
+    if (await db.get(`${interaction.message.id}:vote:whitelist`)) {
+      const whitelist = await db.get(
+        `${interaction.message.id}:vote:whitelist`
+      );
+      if (!interaction.member.roles.cache.has(whitelist))
+        return interaction.reply({
+          content: `The poll is whitelisted to ${whitelist}`,
+          ephemeral: true,
+        });
+    }
+
+    if (await db.get(`${interaction.message.id}:vote:blacklist`)) {
+      const blacklist = await db.get(
+        `${interaction.message.id}:vote:blacklist`
+      );
+      if (interaction.member.roles.cache.has(blacklist))
+        return interaction.reply({
+          content: `The poll is blacklisted to ${blacklist}`,
+          ephemeral: true,
+        });
+    }
+
     var voteIdentifier = `${interaction.message.id}:${interaction.user.id}:vote`;
     const voteChoice = await db.get(voteIdentifier);
 
@@ -30,12 +53,12 @@ module.exports = {
       new ButtonBuilder()
         .setLabel(yesButtonValue.toString())
         .setStyle(ButtonStyle.Success)
-        .setEmoji("👍")
+        .setEmoji("🔼")
         .setCustomId("vote:yes"),
       new ButtonBuilder()
         .setLabel(noButtonValue.toString())
         .setStyle(ButtonStyle.Danger)
-        .setEmoji("👎")
+        .setEmoji("🔽")
         .setCustomId("vote:no"),
       new ButtonBuilder()
         .setLabel("END POLL")

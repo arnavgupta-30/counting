@@ -1,4 +1,9 @@
-const { EmbedBuilder } = require("discord.js");
+const {
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+} = require("discord.js");
 
 module.exports = {
   type: "button",
@@ -20,12 +25,46 @@ module.exports = {
 
     const emb = new EmbedBuilder(interaction.message.embeds[0])
       .setColor(color)
-      .addFields({
-        name: "Result",
-        value: `**UPVOTES -** \`${yes}\` (${p1}%)\n**DOWNVOTES -** \`${no}\` (${p2}%)`,
-      });
+      .addFields(
+        {
+          name: "Upvotes",
+          value: `${yes} (${p1.toFixed(2)}%)`,
+          inline: true,
+        },
+        {
+          name: "Downvotes",
+          value: `${no} (${p2.toFixed(2)}%)`,
+          inline: true,
+        }
+      );
 
-    interaction.update({ components: [], embeds: [emb] });
+    var row = new ActionRowBuilder().setComponents(
+      new ButtonBuilder()
+        .setDisabled(true)
+        .setLabel(`${yes}/${total} (${p1.toFixed(2)}%)`)
+        .setStyle(ButtonStyle.Success)
+        .setEmoji("🔼")
+        .setCustomId("vote:yes"),
+      new ButtonBuilder()
+        .setDisabled(true)
+        .setLabel(`${no}/${total} (${p2.toFixed(2)}%)`)
+        .setStyle(ButtonStyle.Danger)
+        .setEmoji("🔽")
+        .setCustomId("vote:no"),
+      new ButtonBuilder()
+        .setDisabled(true)
+        .setLabel("END POLL")
+        .setStyle(ButtonStyle.Primary)
+        .setCustomId("vote:end")
+    );
+
+    interaction.update({
+      content: (await db.get(`${interaction.message.id}:vote:ping`))
+        ? `<@&${await db.get(`${interaction.message.id}:vote:ping`)}>`
+        : null,
+      components: [row],
+      embeds: [emb],
+    });
     db.delete(`${interaction.message.id}`);
   },
 };

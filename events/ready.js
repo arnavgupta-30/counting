@@ -1,5 +1,12 @@
 /* eslint-disable indent */
-const { Events, ActivityType, EmbedBuilder } = require("discord.js");
+const {
+  Events,
+  ActivityType,
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+} = require("discord.js");
 var index = 0;
 
 module.exports = {
@@ -66,17 +73,6 @@ module.exports = {
         var timer = timers[i];
         if (timer.expires > Date.now()) return;
 
-        if (timer.channel == undefined) {
-          console.log(`[🕒] Timer ${timer.id} no channel`);
-          await db.set(
-            "timers",
-            timers.filter((t) => t.id !== timer.id)
-          );
-          break;
-        }
-
-        console.log(`[🕒] Timer expired: ${timer.id}`);
-
         switch (timer.type) {
           case "pollend":
             (async () => {
@@ -85,7 +81,6 @@ module.exports = {
                 await client.channels.fetch(timer.channel)
               ).messages.fetch(id);
 
-              console.log(`[🕒] Timer ${timer.id} ended`);
               await db.set(
                 "timers",
                 timers.filter((t) => t.id !== timer.id)
@@ -105,12 +100,47 @@ module.exports = {
 
               const emb = new EmbedBuilder(message.embeds[0])
                 .setColor(color)
-                .addFields({
-                  name: "Result",
-                  value: `**UPVOTES -** \`${yes}\` (${p1}%)\n**DOWNVOTES -** \`${no}\` (${p2}%)`,
-                });
+                .addFields(
+                  {
+                    name: "Upvotes",
+                    value: `${yes} (${p1.toFixed(2)}%)`,
+                    inline: true,
+                  },
+                  {
+                    name: "Downvotes",
+                    value: `${no} (${p2.toFixed(2)}%)`,
+                    inline: true,
+                  }
+                );
 
-              message.edit({ components: [], embeds: [emb] });
+              var row = new ActionRowBuilder().setComponents(
+                new ButtonBuilder()
+                  .setDisabled(true)
+                  .setLabel(`${yes}/${total} (${p1.toFixed(2)}%)`)
+                  .setStyle(ButtonStyle.Success)
+                  .setEmoji("🔼")
+                  .setCustomId("vote:yes"),
+                new ButtonBuilder()
+                  .setDisabled(true)
+                  .setLabel(`${no}/${total} (${p2.toFixed(2)}%)`)
+                  .setStyle(ButtonStyle.Danger)
+                  .setEmoji("🔽")
+                  .setCustomId("vote:no"),
+                new ButtonBuilder()
+                  .setDisabled(true)
+                  .setLabel("END POLL")
+                  .setStyle(ButtonStyle.Primary)
+                  .setCustomId("vote:end")
+              );
+
+              message.edit({
+                content: (await db.get(`${message.id}:vote:ping`))
+                  ? `<@&${await db.get(`${message.id}:vote:ping`)}>`
+                  : null,
+                components: [row],
+                embeds: [emb],
+              });
+              db.delete(`${message.id}`);
             })();
         }
       }
