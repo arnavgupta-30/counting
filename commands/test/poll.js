@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 const {
   SlashCommandBuilder,
   EmbedBuilder,
@@ -69,6 +70,18 @@ module.exports = {
     const emb = new EmbedBuilder()
       .setTitle(cont)
       .setDescription(desc)
+      .addFields(
+        interaction.options.getString("expiry")
+          ? {
+              name: "Timer",
+              value: `<t:${(
+                Date.now() + ms(interaction.options.getString("expiry"))
+              )
+                .toString()
+                .slice(0, -4)}:R>`,
+            }
+          : null
+      )
       .setAuthor({
         name: interaction.user.username,
         iconURL: interaction.user.displayAvatarURL(),
@@ -76,7 +89,8 @@ module.exports = {
       })
       .setFooter({
         text:
-          "Expires in " + interaction.options.getString("expiry") || "Never",
+          "Set to expire in " + interaction.options.getString("expiry") ||
+          "Never",
       })
       .setThumbnail(
         interaction.options.getAttachment("thumbnail")

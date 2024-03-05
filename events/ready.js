@@ -19,7 +19,9 @@ module.exports = {
     console.log(`[🤖] Online as ${client.user.tag}`);
     const db = client.db;
 
-    if ((await db.get("count")) === null) await db.set("count", 0);
+    if ((await db.get("count")) === null) {
+      await db.set("count", 0);
+    }
 
     var customPresence = await db.get("customStatus");
     if (customPresence) {

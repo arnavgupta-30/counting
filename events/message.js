@@ -87,27 +87,6 @@ module.exports = {
     if (message.channel.id === client.config.countChannel) {
       if (!currentCount) currentCount = await db.get("count");
 
-      const guild = client.guilds.cache.get(client.config.guildID);
-      const role = await guild.roles.fetch(client.config.sumanaRoleID);
-      if (!message.member.roles.cache.has(role.id)) {
-        console.log("[❌] User does not have the role");
-
-        message.author
-          .send("You must have `Sarkar` in your status to use this channel")
-          .catch(() => {
-            message
-              .reply(
-                "You must have `Sarkar` in your status to use this channel"
-              )
-              .then((msg) => {
-                setTimeout(() => {
-                  msg.delete();
-                }, 5000);
-              });
-          });
-        return message.delete();
-      }
-
       var newCount = parseInt(message.content);
 
       if (isNaN(newCount)) {
