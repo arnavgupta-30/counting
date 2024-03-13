@@ -15,8 +15,26 @@ const client = new Client({
   partials: [Partials.Channel, Partials.Message],
 });
 
-const config_json = require("./config.json");
-client.config = config_json;
+// {
+//   "port": "6724",
+//   "evalChannel": "1206602282205061150",
+//   "aiChannel": "1201573269501923368",
+//   "guildID": "1083399687467438182",
+//   "sumanaRoleID": "1208400649692127232",
+//   "userID": "1214625981059305503",
+//   "countChannel": "1188425706888241253",
+//   "countRole": "1087750196215156767"
+// }
+client.config = {
+  port: process.env.port,
+  evalChannel: process.env.evalChannel,
+  aiChannel: process.env.aiChannel,
+  guildID: process.env.guildID,
+  sumanaRoleID: process.env.sumanaRoleID,
+  userID: process.env.userID,
+  countChannel: process.env.countChannel,
+  countRole: process.env.countRole,
+};
 
 // Error handling
 client.on("error", console.error);
